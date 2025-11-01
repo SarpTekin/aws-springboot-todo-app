@@ -1,24 +1,38 @@
-# Maven
+HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-# IDE
-.idea/
-*.iml
-*.iws
-*.ipr
-.vscode/
-.sts4-cache/
+### STS ###
 .apt_generated
 .classpath
 .factorypath
 .project
-.settings/
+.settings
 .springBeans
+.sts4-cache
 
-# OS
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### OS ###
 .DS_Store
 .DS_Store?
 ._*
@@ -27,9 +41,9 @@ target/
 ehthumbs.db
 Thumbs.db
 
-# Logs
+### Logs ###
 *.log
 
-# Other
+### Other ###
 node_modules/
 *.zip
