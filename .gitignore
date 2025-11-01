@@ -1,0 +1,35 @@
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.sts4-cache/
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+
+# Other
+node_modules/
+*.zip
