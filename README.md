@@ -1,1 +1,0 @@
-# aws-springboot-todo-app
