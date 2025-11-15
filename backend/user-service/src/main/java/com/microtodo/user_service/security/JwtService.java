@@ -34,11 +34,37 @@ public class JwtService {
                 .compact();
     }
 
+    public String extractUsername(String token) {
+        return extractClaims(token).getSubject();
+    }
+
+    public Long extractUserId(String token) {
+        return extractClaims(token).get("userId", Long.class);
+    }
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaims(token).getExpiration();
+    }
+
+    private io.jsonwebtoken.Claims extractClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSignInKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
     private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(properties.getSecret());
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
-    // keep the rest (extract/validate helpers) the same,
-    // but reference properties instead of @Value fields
 }
