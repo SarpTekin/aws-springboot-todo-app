@@ -6,6 +6,7 @@ import java.util.Collections;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+
 import com.microtodo.user_service.model.User;
 
 public class CustomUserDetails implements UserDetails {

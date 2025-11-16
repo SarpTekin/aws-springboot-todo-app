@@ -34,9 +34,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // Skip JWT filter for login and registration endpoints
+        // Skip JWT filter for login, registration, Swagger/OpenAPI and actuator endpoints
         String path = request.getServletPath();
-        if (path.equals("/api/auth/login") || path.equals("/api/users")) {
+        if (
+            path.equals("/api/auth/login") ||
+            path.equals("/api/users") ||
+            path.equals("/api/users/check-username") ||
+            path.equals("/api/users/check-email") ||
+            path.equals("/v3/api-docs") ||
+            path.startsWith("/v3/api-docs/") ||
+            path.equals("/swagger-ui.html") ||
+            path.startsWith("/swagger-ui/") ||
+            path.startsWith("/swagger-resources/") ||
+            path.startsWith("/webjars/") ||
+            path.startsWith("/actuator/")
+        ) {
             filterChain.doFilter(request, response);
             return;
         }

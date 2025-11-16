@@ -51,13 +51,22 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints - login and registration only
-                .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers("/api/users").permitAll() // Registration
-                .requestMatchers("/actuator/**").permitAll()
-                // All other endpoints require authentication (JWT token)
-                .anyRequest().authenticated()
-            )
+            .requestMatchers(
+                "/v3/api-docs",
+                "/v3/api-docs/**",
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/swagger-resources/**",
+                "/webjars/**",
+                "/actuator/**",
+                "/api/auth/login",
+                "/api/users",
+                "/api/users/**", 
+                "/api/users/check-username",
+                "/api/users/check-email"
+            ).permitAll()
+            .anyRequest().authenticated()
+        )
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         
