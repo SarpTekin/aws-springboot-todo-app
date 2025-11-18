@@ -17,7 +17,8 @@ public class TaskRequest {
     @Size(max = 1000, message = "Description must be less than 1000 characters")
     private String description;
 
-    @NotNull(message = "User ID is required")
+    // userId is set automatically from JWT token in TaskController
+    // Not required in request body
     private Long userId;
 
     private Task.TaskStatus status;

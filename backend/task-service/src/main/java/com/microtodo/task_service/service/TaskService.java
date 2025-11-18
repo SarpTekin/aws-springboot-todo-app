@@ -20,8 +20,10 @@ public class TaskService {
     private UserServiceClient userServiceClient;
 
     public TaskResponse createTask(TaskRequest taskRequest) {
-        // Validate user exists by calling User Service
-        userServiceClient.getUserById(taskRequest.getUserId());
+        // Note: User validation is not needed here because:
+        // 1. JWT token already contains authenticated userId
+        // 2. User was authenticated when they logged in
+        // 3. We trust the JWT token's userId claim
         
         Task task = new Task();
         task.setTitle(taskRequest.getTitle());
