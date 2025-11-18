@@ -51,13 +51,18 @@ class TaskRepository(
 ) {
 
     /**
-     * Get all tasks for a user
+     * Get all tasks for the current user
      *
-     * ENDPOINT: GET /api/tasks?userId={userId}
+     * ENDPOINT: GET /api/tasks
+     *
+     * ⚠️ IMPORTANT CHANGE:
+     * - No userId parameter needed!
+     * - Backend automatically extracts userId from JWT token
+     * - Only returns tasks for the authenticated user
      *
      * USAGE IN VIEWMODEL:
      * ```kotlin
-     * val result = repository.getTasks(currentUserId)
+     * val result = repository.getTasks()
      * result.onSuccess { tasks ->
      *     _uiState.value = Success(tasks)
      * }.onFailure { error ->
@@ -65,7 +70,6 @@ class TaskRepository(
      * }
      * ```
      *
-     * @param userId The user's ID to fetch tasks for
      * @return Result with List<TaskResponse> or error
      *
      * POSSIBLE ERRORS:
@@ -74,11 +78,12 @@ class TaskRepository(
      * - Timeout (server took too long to respond)
      * - 401 Unauthorized (token expired - AuthInterceptor handles this)
      */
-    suspend fun getTasks(userId: Long): Result<List<TaskResponse>> {
+    suspend fun getTasks(): Result<List<TaskResponse>> {
         return try {
             // Call the API service
             // AuthInterceptor automatically adds JWT token!
-            val tasks = apiService.getTasks(userId)
+            // Backend extracts userId from token automatically
+            val tasks = apiService.getTasks()
 
             // Success! Return the tasks
             Result.success(tasks)
@@ -122,7 +127,6 @@ class TaskRepository(
      * USAGE IN VIEWMODEL:
      * ```kotlin
      * val newTask = TaskRequest(
-     *     userId = currentUserId,
      *     title = "Buy groceries",
      *     description = "Milk, eggs, bread",
      *     status = TaskStatus.PENDING
@@ -172,7 +176,6 @@ class TaskRepository(
      * ```kotlin
      * val updatedTask = task.copy(status = TaskStatus.COMPLETED)
      * val request = TaskRequest(
-     *     userId = task.userId,
      *     title = task.title,
      *     description = task.description,
      *     status = TaskStatus.COMPLETED
@@ -268,8 +271,8 @@ class TaskRepository(
         newStatus: com.example.todoapp.data.model.TaskStatus
     ): Result<TaskResponse> {
         // Create TaskRequest with updated status
+        // No userId needed - extracted from JWT token!
         val request = TaskRequest(
-            userId = currentTask.userId,
             title = currentTask.title,
             description = currentTask.description,
             status = newStatus

@@ -52,9 +52,6 @@ class TaskListViewModel(
     // All tasks (unfiltered)
     private val _allTasks = MutableStateFlow<List<TaskResponse>>(emptyList())
 
-    // Current user ID (from token)
-    private var currentUserId: Long? = null
-
     init {
         // Load tasks when ViewModel is created
         loadTasks()
@@ -64,9 +61,9 @@ class TaskListViewModel(
      * Load tasks from backend
      *
      * FLOW:
-     * 1. Get userId from TokenManager
-     * 2. Set state to Loading
-     * 3. Call repository.getTasks(userId)
+     * 1. Set state to Loading
+     * 2. Call repository.getTasks() - no userId needed!
+     * 3. Backend extracts userId from JWT token automatically
      * 4. Handle success/failure
      * 5. Apply current filter
      *
@@ -74,21 +71,18 @@ class TaskListViewModel(
      * - On ViewModel init (screen opens)
      * - On pull-to-refresh
      * - After creating/updating/deleting a task
+     *
+     * ⚠️ IMPORTANT:
+     * No need to get userId from TokenManager!
+     * Backend extracts it from JWT token automatically
      */
     fun loadTasks() {
         viewModelScope.launch {
             _uiState.value = TaskListUiState.Loading
 
-            // Get current user ID from token
-            val userId = tokenManager.getUserId()
-            if (userId == null) {
-                _uiState.value = TaskListUiState.Error("User not logged in")
-                return@launch
-            }
-            currentUserId = userId
-
             // Fetch tasks from backend
-            val result = repository.getTasks(userId)
+            // Backend automatically filters by authenticated user
+            val result = repository.getTasks()
 
             result
                 .onSuccess { tasks ->
@@ -114,7 +108,6 @@ class TaskListViewModel(
      * - TaskStatus.PENDING = Show only pending tasks
      * - TaskStatus.IN_PROGRESS = Show only in-progress tasks
      * - TaskStatus.COMPLETED = Show only completed tasks
-     * - TaskStatus.CANCELLED = Show only cancelled tasks
      *
      * KOTLIN FEATURES:
      * - filter { } = Higher-order function (functional programming)
@@ -242,15 +235,6 @@ class TaskListViewModel(
      */
     fun startTask(task: TaskResponse) {
         updateTaskStatus(task, TaskStatus.IN_PROGRESS)
-    }
-
-    /**
-     * Quick action: Cancel task
-     *
-     * @param task The task to cancel
-     */
-    fun cancelTask(task: TaskResponse) {
-        updateTaskStatus(task, TaskStatus.CANCELLED)
     }
 
     /**

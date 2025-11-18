@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.ui.screens.CreateTaskScreen
 import com.example.todoapp.ui.screens.HomeScreen
 import com.example.todoapp.ui.screens.LoginScreen
+import com.example.todoapp.ui.screens.RegisterScreen
 import com.example.todoapp.ui.screens.TaskListScreen
 import com.example.todoapp.ui.screens.UsernameCheckScreen
 
@@ -18,6 +19,7 @@ import com.example.todoapp.ui.screens.UsernameCheckScreen
  */
 object Routes {
     const val LOGIN = "login"
+    const val REGISTER = "register"
     const val HOME = "home"
     const val TASK_LIST = "task_list"
     const val CREATE_TASK = "create_task"
@@ -53,6 +55,25 @@ fun NavGraph(
                         // (user can't press back to go back to login)
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
+                },
+                onNavigateToRegister = {
+                    // Navigate to register screen
+                    navController.navigate(Routes.REGISTER)
+                }
+            )
+        }
+
+        // Register Screen
+        composable(Routes.REGISTER) {
+            RegisterScreen(
+                onRegisterSuccess = { username ->
+                    // Navigate back to login screen
+                    // User can now log in with new credentials
+                    navController.popBackStack()
+                },
+                onNavigateToLogin = {
+                    // User changed their mind, go back to login
+                    navController.popBackStack()
                 }
             )
         }
