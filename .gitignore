@@ -8,6 +8,14 @@ target/
 *.md
 !README.md
 
+# Ignore credentials and sensitive files
+*CREDENTIALS*.txt
+*SECRETS*.txt
+*credentials*.txt
+*secrets*.txt
+*.key
+*.pem
+
 ### STS ###
 .apt_generated
 .classpath
