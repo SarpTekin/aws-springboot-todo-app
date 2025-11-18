@@ -37,12 +37,17 @@ import retrofit2.http.*
 interface TaskApiService {
 
     /**
-     * Get all tasks for a specific user
+     * Get all tasks for the current user
      *
-     * ENDPOINT: GET /api/tasks?userId={userId}
+     * ENDPOINT: GET /api/tasks
+     *
+     * ⚠️ IMPORTANT:
+     * - No userId parameter needed!
+     * - Backend automatically extracts userId from JWT token
+     * - Only returns tasks for the authenticated user
      *
      * EXAMPLE REQUEST:
-     * GET http://192.168.0.129:8081/api/tasks?userId=5
+     * GET http://192.168.0.129:8082/api/tasks
      * Headers: Authorization: Bearer <jwt-token>
      *
      * EXAMPLE RESPONSE:
@@ -67,15 +72,12 @@ interface TaskApiService {
      *   }
      * ]
      *
-     * @param userId The user's ID to filter tasks
-     * @return List of tasks belonging to this user
+     * @return List of tasks belonging to the authenticated user
      *
      * NOTE: Returns empty list if user has no tasks
      */
     @GET("api/tasks")
-    suspend fun getTasks(
-        @Query("userId") userId: Long
-    ): List<TaskResponse>
+    suspend fun getTasks(): List<TaskResponse>
 
     /**
      * Get a single task by ID
@@ -83,7 +85,7 @@ interface TaskApiService {
      * ENDPOINT: GET /api/tasks/{id}
      *
      * EXAMPLE REQUEST:
-     * GET http://192.168.0.129:8081/api/tasks/1
+     * GET http://192.168.0.129:8082/api/tasks/1
      * Headers: Authorization: Bearer <jwt-token>
      *
      * EXAMPLE RESPONSE:
@@ -115,13 +117,12 @@ interface TaskApiService {
      * ENDPOINT: POST /api/tasks
      *
      * EXAMPLE REQUEST:
-     * POST http://192.168.0.129:8081/api/tasks
+     * POST http://192.168.0.129:8082/api/tasks
      * Headers:
      *   Authorization: Bearer <jwt-token>
      *   Content-Type: application/json
      * Body:
      * {
-     *   "userId": 5,
      *   "title": "Complete Kotlin tutorial",
      *   "description": "Learn coroutines and flows",
      *   "status": "PENDING"
@@ -141,9 +142,12 @@ interface TaskApiService {
      * @param request TaskRequest with task details
      * @return TaskResponse with generated id and timestamps
      *
+     * ⚠️ IMPORTANT:
+     * - No userId in request body!
+     * - Backend extracts userId from JWT token automatically
+     *
      * VALIDATION:
      * - Title cannot be empty
-     * - UserId must match JWT token's user
      */
     @POST("api/tasks")
     suspend fun createTask(
@@ -156,13 +160,12 @@ interface TaskApiService {
      * ENDPOINT: PUT /api/tasks/{id}
      *
      * EXAMPLE REQUEST:
-     * PUT http://192.168.0.129:8081/api/tasks/1
+     * PUT http://192.168.0.129:8082/api/tasks/1
      * Headers:
      *   Authorization: Bearer <jwt-token>
      *   Content-Type: application/json
      * Body:
      * {
-     *   "userId": 5,
      *   "title": "Buy groceries",
      *   "description": "Milk, eggs, bread, cheese",
      *   "status": "COMPLETED"  // ← Changed from PENDING to COMPLETED
@@ -204,7 +207,7 @@ interface TaskApiService {
      * ENDPOINT: DELETE /api/tasks/{id}
      *
      * EXAMPLE REQUEST:
-     * DELETE http://192.168.0.129:8081/api/tasks/1
+     * DELETE http://192.168.0.129:8082/api/tasks/1
      * Headers: Authorization: Bearer <jwt-token>
      *
      * EXAMPLE RESPONSE:

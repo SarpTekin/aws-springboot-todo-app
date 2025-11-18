@@ -234,7 +234,7 @@ fun TaskList(
                 task = task,
                 onClick = { onTaskClick(task) },
                 onDelete = { onDeleteTask(task) },
-                onStatusChange = { newStatus -> onStatusChange(task, newStatus) }
+                onStatusChange = onStatusChange
             )
         }
     }
@@ -268,7 +268,7 @@ fun TaskItem(
     task: TaskResponse,
     onClick: () -> Unit,
     onDelete: () -> Unit,
-    onStatusChange: (TaskStatus) -> Unit
+    onStatusChange: (TaskResponse, TaskStatus) -> Unit
 ) {
     var showStatusMenu by remember { mutableStateOf(false) }
 
@@ -382,22 +382,64 @@ fun TaskItem(
         }
     }
 
-    // Status change dropdown menu
-    DropdownMenu(
-        expanded = showStatusMenu,
-        onDismissRequest = { showStatusMenu = false }
-    ) {
-        TaskStatus.entries.forEach { status ->
-            if (status != task.status) {
-                DropdownMenuItem(
-                    text = { Text(status.displayName()) },
-                    onClick = {
-                        onStatusChange(status)
-                        showStatusMenu = false
+    // Status change dialog (centered on screen)
+    if (showStatusMenu) {
+        AlertDialog(
+            onDismissRequest = { showStatusMenu = false },
+            title = { Text("Change Status") },
+            text = {
+                Column {
+                    Text(
+                        text = "Current: ${task.status.displayName()}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    // Show all other statuses
+                    TaskStatus.entries.forEach { status ->
+                        if (status != task.status) {
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                                    .clickable {
+                                        onStatusChange(task, status)
+                                        showStatusMenu = false
+                                    },
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(status.colorCode()).copy(alpha = 0.1f)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .padding(16.dp)
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = status.displayName(),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(16.dp)
+                                            .clip(CircleShape)
+                                            .background(Color(status.colorCode()))
+                                    )
+                                }
+                            }
+                        }
                     }
-                )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showStatusMenu = false }) {
+                    Text("Cancel")
+                }
             }
-        }
+        )
     }
 }
 

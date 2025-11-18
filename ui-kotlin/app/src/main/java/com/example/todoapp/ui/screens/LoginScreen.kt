@@ -31,7 +31,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = koinViewModel(),
-    onLoginSuccess: (userId: Long, username: String) -> Unit = { _, _ -> }
+    onLoginSuccess: (userId: Long, username: String) -> Unit = { _, _ -> },
+    onNavigateToRegister: () -> Unit = {}
 ) {
     // Observe UI state
     val uiState by viewModel.uiState.collectAsState()
@@ -227,6 +228,20 @@ fun LoginScreen(
             }
         }
 
-        // TODO: Add "Forgot Password?" and "Create Account" links here
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Don't have an account? Register
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Don't have an account?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+            TextButton(onClick = onNavigateToRegister) {
+                Text("Register")
+            }
+        }
     }
 }

@@ -153,9 +153,9 @@ class CreateTaskViewModel(
      *
      * FLOW:
      * 1. Validate form
-     * 2. Get current user ID from token
-     * 3. Create TaskRequest
-     * 4. Call repository.createTask()
+     * 2. Create TaskRequest (no userId needed!)
+     * 3. Call repository.createTask()
+     * 4. Backend extracts userId from JWT token automatically
      * 5. Handle success/failure
      *
      * SUCCESS:
@@ -166,6 +166,10 @@ class CreateTaskViewModel(
      * FAILURE:
      * - UI state becomes Error with message
      * - User can retry
+     *
+     * ⚠️ IMPORTANT:
+     * No need to get userId from TokenManager!
+     * Backend extracts it from JWT token automatically
      */
     fun createTask() {
         // Validate form first
@@ -176,16 +180,9 @@ class CreateTaskViewModel(
         viewModelScope.launch {
             _uiState.value = CreateTaskUiState.Loading
 
-            // Get current user ID
-            val userId = tokenManager.getUserId()
-            if (userId == null) {
-                _uiState.value = CreateTaskUiState.Error("User not logged in")
-                return@launch
-            }
-
             // Create task request
+            // No userId needed - backend extracts from JWT token!
             val taskRequest = TaskRequest(
-                userId = userId,
                 title = _title.value.trim(),
                 description = _description.value.trim().ifBlank { null },
                 status = _selectedStatus.value

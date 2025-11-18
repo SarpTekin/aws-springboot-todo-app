@@ -39,13 +39,7 @@ enum class TaskStatus {
      * Task has been finished
      * The work is done!
      */
-    COMPLETED,
-
-    /**
-     * Task has been cancelled
-     * Won't be worked on (maybe it's no longer relevant)
-     */
-    CANCELLED;
+    COMPLETED;
 
     /**
      * Helper function to get display text
@@ -58,7 +52,6 @@ enum class TaskStatus {
             PENDING -> "Pending"
             IN_PROGRESS -> "In Progress"
             COMPLETED -> "Completed"
-            CANCELLED -> "Cancelled"
         }
     }
 
@@ -72,7 +65,6 @@ enum class TaskStatus {
             PENDING -> 0xFFFFB74D      // Orange
             IN_PROGRESS -> 0xFF42A5F5   // Blue
             COMPLETED -> 0xFF66BB6A     // Green
-            CANCELLED -> 0xFF757575     // Grey
         }
     }
 }

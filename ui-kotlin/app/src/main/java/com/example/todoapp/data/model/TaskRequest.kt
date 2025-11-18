@@ -59,17 +59,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TaskRequest(
     /**
-     * User ID
-     * Which user owns this task?
-     *
-     * WHY INCLUDE IN REQUEST?
-     * - Backend needs to know who the task belongs to
-     * - Even though we have JWT token, we still send userId for clarity
-     * - Backend validates: token's userId matches request's userId
-     */
-    val userId: Long,
-
-    /**
      * Task Title (Required)
      * What needs to be done?
      *
@@ -96,11 +85,16 @@ data class TaskRequest(
      *
      * DEFAULT VALUE:
      * When creating a new task, usually set to PENDING
-     * When updating, can change to IN_PROGRESS, COMPLETED, CANCELLED
+     * When updating, can change to IN_PROGRESS, COMPLETED
      *
      * TYPE SAFETY:
      * Can only use TaskStatus enum values
      * Compiler prevents typos like "pending" or "done"
+     *
+     * ⚠️ IMPORTANT CHANGE:
+     * userId is NO LONGER in this request!
+     * Backend automatically extracts userId from JWT token
+     * This is more secure and prevents users from creating tasks for others
      */
     val status: TaskStatus = TaskStatus.PENDING
 ) {
