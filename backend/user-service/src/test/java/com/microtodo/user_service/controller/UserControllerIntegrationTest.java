@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microtodo.user_service.dto.UserRequest;
 import com.microtodo.user_service.model.User;
 import com.microtodo.user_service.repository.UserRepository;
+import com.microtodo.user_service.util.TestJwtHelper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -31,6 +32,8 @@ class UserControllerIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    private String testToken;
 
     @BeforeEach
     void setUp() {
@@ -130,7 +133,11 @@ class UserControllerIntegrationTest {
         user.setPassword("password123");
         User savedUser = userRepository.save(user);
 
-        mockMvc.perform(get("/api/users/" + savedUser.getId()))
+        // Generate JWT token for the same user
+        testToken = TestJwtHelper.generateTestToken(savedUser.getId(), "testuser");
+
+        mockMvc.perform(get("/api/users/" + savedUser.getId())
+                .header("Authorization", "Bearer " + testToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedUser.getId()))
                 .andExpect(jsonPath("$.username").value("testuser"))
@@ -140,13 +147,20 @@ class UserControllerIntegrationTest {
 
     @Test
     void testGetUserById_NotFound() throws Exception {
-        // Expect RuntimeException due to user not found
-        try {
-            mockMvc.perform(get("/api/users/999"));
-        } catch (Exception e) {
-            // Expected - RuntimeException: User not found with id: 999
-            assertTrue(e.getCause() != null && e.getCause().getMessage().contains("User not found with id: 999"));
-        }
+        // Create a user first (needed for JWT validation)
+        User user = new User();
+        user.setUsername("testuser");
+        user.setEmail("test@example.com");
+        user.setPassword("password123");
+        User savedUser = userRepository.save(user);
+        
+        // Generate a token for the created user
+        testToken = TestJwtHelper.generateTestToken(savedUser.getId(), "testuser");
+        
+        // Try to access a non-existent user (should return 403 Forbidden - same-user only)
+        mockMvc.perform(get("/api/users/999")
+                .header("Authorization", "Bearer " + testToken))
+                .andExpect(status().isForbidden());
     }
 }
 

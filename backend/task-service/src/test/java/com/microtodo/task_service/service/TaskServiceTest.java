@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.microtodo.task_service.dto.TaskRequest;
 import com.microtodo.task_service.dto.TaskResponse;
-import com.microtodo.task_service.dto.UserDto;
 import com.microtodo.task_service.model.Task;
 import com.microtodo.task_service.repository.TaskRepository;
 
@@ -27,15 +26,15 @@ class TaskServiceTest {
     @Mock
     private TaskRepository taskRepository;
 
-    @Mock
-    private UserServiceClient userServiceClient;
+    // UserServiceClient removed - we trust JWT token now
+    // @Mock
+    // private UserServiceClient userServiceClient;
 
     @InjectMocks
     private TaskService taskService;
 
     private TaskRequest taskRequest;
     private Task task;
-    private UserDto userDto;
 
     @BeforeEach
     void setUp() {
@@ -51,19 +50,12 @@ class TaskServiceTest {
         task.setDescription("Test Description");
         task.setUserId(1L);
         task.setStatus(Task.TaskStatus.PENDING);
-
-        userDto = new UserDto();
-        userDto.setId(1L);
-        userDto.setUsername("testuser");
-        userDto.setEmail("test@example.com");
-        userDto.setFirstName("Test");
-        userDto.setLastName("User");
     }
 
     @Test
     void testCreateTask_Success() {
         // Arrange
-        when(userServiceClient.getUserById(1L)).thenReturn(userDto);
+        // Note: User validation removed - we trust JWT token
         when(taskRepository.save(any(Task.class))).thenReturn(task);
 
         // Act
@@ -76,27 +68,13 @@ class TaskServiceTest {
         assertEquals("Test Description", response.getDescription());
         assertEquals(1L, response.getUserId());
         assertEquals(Task.TaskStatus.PENDING, response.getStatus());
-        verify(userServiceClient).getUserById(1L);
         verify(taskRepository).save(any(Task.class));
-    }
-
-    @Test
-    void testCreateTask_UserNotFound() {
-        // Arrange
-        when(userServiceClient.getUserById(1L)).thenThrow(new RuntimeException("User not found"));
-
-        // Act & Assert
-        assertThrows(RuntimeException.class, () -> {
-            taskService.createTask(taskRequest);
-        });
-        verify(taskRepository, never()).save(any(Task.class));
     }
 
     @Test
     void testCreateTask_DefaultStatus() {
         // Arrange
         taskRequest.setStatus(null);
-        when(userServiceClient.getUserById(1L)).thenReturn(userDto);
         when(taskRepository.save(any(Task.class))).thenReturn(task);
 
         // Act
